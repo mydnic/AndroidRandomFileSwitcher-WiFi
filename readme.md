@@ -4,4 +4,6 @@
 On your android device, download and install SSHDroid.
 That's all you need!
 
+Configure it.
+
 Rename config-example.py into config.py and edit your connexion info
