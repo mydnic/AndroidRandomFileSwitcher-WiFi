@@ -1,21 +1,23 @@
 import paramiko, random, os
-from config import *
+import config as config
 
 # Prepare Command
 rawcommand = 'find {path} -name {pattern}'
-command = rawcommand.format(path=filePath, pattern=filePattern)
+command = rawcommand.format(path=config.filePath, pattern=config.filePattern)
 
 # Connect to Android Device
-print 'Start Connexion...'
+print('Start Connexion...')
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect(host, port=port, username=username, password=password)
+ssh.connect(config.host, port=config.port, username=config.username, password=config.password)
 sftp = ssh.open_sftp()
-print 'Connected.'
+print('Connected.')
 
 # List the distant files and chose a random one
-print 'Listing all files from distant device...'
+print('Listing all files from distant device...')
 distantFiles = list()
+
+print(command)
 
 stdin, stdout, stderr = ssh.exec_command(command)
 filelist = stdout.read().splitlines()
@@ -25,16 +27,16 @@ for afile in filelist:
     distantFiles.append(filename)
 
 chosenDistantFile = random.choice(distantFiles)
-print chosenDistantFile, 'is the distant file that was randomly picked'
+print(chosenDistantFile, 'is the distant file that was randomly picked')
 
 # List the local files and chose a random one
-print 'Listing all local files...'
+print('Listing all local files...')
 localFiles = list()
 
 def fileLoop():
-    for root, dirs, files in os.walk(localPath):
+    for root, dirs, files in os.walk(config.localPath):
         for filename in files:
-            if os.path.splitext(filename)[1] == fileExtension:
+            if os.path.splitext(filename)[1] == config.fileExtension:
                 yield os.path.join(root, filename)
 
 for file in fileLoop():
@@ -43,17 +45,17 @@ for file in fileLoop():
 chosenLocalFile = random.choice(localFiles)
 (chosenPath, chosenFilename) = os.path.split(chosenLocalFile)
 
-print chosenFilename, 'is the local file that was randomly picked'
+print(chosenFilename, 'is the local file that was randomly picked')
 
 # Deleting Distan File
-sftp.remove(filePath + '/' + chosenDistantFile)
-print chosenDistantFile, 'has been deleted'
+sftp.remove(config.filePath + '/' + chosenDistantFile)
+print(chosenDistantFile, 'has been deleted')
 
 # Move new file to Distant Device
-sftp.put(chosenLocalFile, filePath + '/' + chosenFilename)
-print chosenFilename, 'has been transfered to your device'
+sftp.put(chosenLocalFile, config.filePath + '/' + chosenFilename)
+print(chosenFilename, 'has been transfered to your device')
 
 # End Script
 sftp.close()
 ssh.close()
-print 'See you soon bro'
+print('See you soon bro')
